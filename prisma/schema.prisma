@@ -1,0 +1,90 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  username  String
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum ArrivalStatus {
+  UPCOMING
+  IN_PROGRESS
+  FINISHED
+}
+
+model Arrival {
+  id                  String        @id @default(cuid())
+  arrivalNumber       String        @unique
+  title               String
+  supplier            String
+  expectedArrivalDate DateTime
+  actualArrivalDate   DateTime?
+  finishDate          DateTime?
+  status              ArrivalStatus @default(UPCOMING)
+  summary             String?
+
+  // Expected Quantities
+  expected_pallets   Int?
+  expected_boxes     Int?
+  expected_kilograms Float?
+  expected_pieces    Int?
+
+  // Actual Quantities
+  actual_pallets   Int?
+  actual_boxes     Int?
+  actual_kilograms Float?
+  actual_pieces    Int?
+
+  products Product[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum ProductCondition {
+  NEW
+  USED
+  DAMAGED
+}
+
+model Product {
+  id          String           @id @default(cuid())
+  name        String
+  sku         String           
+  description String?
+  barcode     String?          @unique
+  brand       Brand            @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  brandId     String
+  category    String
+  size        String?
+  color       String?
+  style       String?
+  condition   ProductCondition @default(NEW)
+  quantity    Int
+  arrival     Arrival          @relation(fields: [arrivalId], references: [id], onDelete: Cascade)
+  arrivalId   String
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+model Brand {
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  Product   Product[]
+}
