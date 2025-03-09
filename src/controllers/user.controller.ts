@@ -47,15 +47,15 @@ export const register = async (req: Request, res: Response): Promise<any> => {
       },
     });
 
-    const { accessToken } = CreateTokens({
+    const { token } = CreateTokens({
       id: newUser.id,
       role: newUser.role,
       email: newUser.email,
     });
 
-    res.setHeader("accessToken", accessToken);
+    res.setHeader("token", token);
 
-    res.cookie("accessToken", accessToken, {
+    res.cookie("token", token, {
       httpOnly: true,
       sameSite: "none",
       secure: true,
@@ -64,7 +64,7 @@ export const register = async (req: Request, res: Response): Promise<any> => {
 
     const { password: userPassword, ...user } = newUser;
 
-    return res.status(201).json({ success: true, data: user });
+    return res.status(201).json({ success: true, data: user, token });
   } catch (error) {
     return res.status(500).json({ success: false, error: error });
   }
@@ -108,15 +108,15 @@ export const login = async (req: Request, res: Response): Promise<any> => {
       });
     }
 
-    const { accessToken } = CreateTokens({
+    const { token } = CreateTokens({
       id: user.id,
       role: user.role,
       email: user.email,
     });
 
-    res.setHeader("accessToken", accessToken);
+    res.setHeader("token", token);
 
-    res.cookie("accessToken", accessToken, {
+    res.cookie("token", token, {
       httpOnly: true,
       sameSite: "none",
       secure: true,
@@ -125,7 +125,7 @@ export const login = async (req: Request, res: Response): Promise<any> => {
 
     const { password: userPassword, ...userData } = user;
 
-    return res.status(200).json({ success: true, data: userData });
+    return res.status(200).json({ success: true, data: userData, token });
   } catch (error) {
     return res.status(500).json({ success: false, error: error });
   }
@@ -133,7 +133,7 @@ export const login = async (req: Request, res: Response): Promise<any> => {
 
 export const logout = async (req: Request, res: Response): Promise<any> => {
   try {
-    res.clearCookie("accessToken");
+    res.clearCookie("token");
     return res
       .status(200)
       .json({ success: true, message: "Logged out successfully" });

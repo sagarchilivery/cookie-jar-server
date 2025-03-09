@@ -14,7 +14,12 @@ import { ensureSequenceExists, prisma } from "./config/db";
 const app = express();
 const port = process.env.PORT || 1337;
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+);
 app.use(helmet());
 app.use(morgan("dev"));
 app.use(express.json());

@@ -13,7 +13,7 @@ export interface CustomRequest extends Request {
 
 const verifyToken = (req: CustomRequest, res: Response, next: NextFunction) => {
   const token =
-    req.headers["authorization"]?.split(" ")[1] || req.cookies["accessToken"];
+    req.headers["authorization"]?.split(" ")[1] || req.cookies["token"];
 
   const secret = process.env.ACCESS_TOKEN_SECRET;
 

@@ -9,10 +9,10 @@ const CreateTokens = (payload: {
   if (!secret) {
     throw new Error("ACCESS_TOKEN SECRET is not defined");
   }
-  const accessToken = jwt.sign(payload, secret, {
+  const token = jwt.sign(payload, secret, {
     expiresIn: "1y",
   });
-  return { accessToken };
+  return { token };
 };
 
 export { CreateTokens };
