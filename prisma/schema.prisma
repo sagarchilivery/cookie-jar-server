@@ -9,11 +9,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  MANAGER
+  WORKER
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
   username  String
   password  String
+  role      UserRole @default(WORKER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -62,7 +68,7 @@ enum ProductCondition {
 model Product {
   id          String           @id @default(cuid())
   name        String
-  sku         String           
+  sku         String
   description String?
   barcode     String?          @unique
   brand       Brand            @relation(fields: [brandId], references: [id], onDelete: Cascade)

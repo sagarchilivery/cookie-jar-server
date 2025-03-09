@@ -150,6 +150,19 @@ export const updateArrival = async (req: Request, res: any) => {
       });
     }
 
+    const arrivalExists = await prisma.arrival.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!arrivalExists) {
+      return res.status(404).json({
+        success: false,
+        message: "Arrival not found",
+      });
+    }
+
     const arrival = await prisma.arrival.update({
       where: {
         id,

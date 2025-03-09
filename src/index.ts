@@ -8,6 +8,7 @@ dotenv.config();
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
+import cookieParser from "cookie-parser";
 import { ensureSequenceExists, prisma } from "./config/db";
 
 const app = express();
@@ -17,6 +18,7 @@ app.use(cors());
 app.use(helmet());
 app.use(morgan("dev"));
 app.use(express.json());
+app.use(cookieParser());
 
 app.get("/api/health", (req, res) => {
   res.send("OK");
@@ -25,10 +27,12 @@ app.get("/api/health", (req, res) => {
 import arrivalRoutes from "./routes/arrival.routes";
 import productRoutes from "./routes/product.routes";
 import brandRoutes from "./routes/brand.routes";
+import userRoutes from "./routes/user.routes";
 
 app.use("/api/arrival", arrivalRoutes);
 app.use("/api/product", productRoutes);
 app.use("/api/brand", brandRoutes);
+app.use("/api/user", userRoutes);
 
 app.listen(port, async () => {
   console.log(`Server is running on http://localhost:${port}`);

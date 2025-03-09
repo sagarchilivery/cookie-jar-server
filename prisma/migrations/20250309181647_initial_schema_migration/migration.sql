@@ -1,5 +1,11 @@
 -- CreateEnum
+CREATE TYPE "UserRole" AS ENUM ('MANAGER', 'WORKER');
+
+-- CreateEnum
 CREATE TYPE "ArrivalStatus" AS ENUM ('UPCOMING', 'IN_PROGRESS', 'FINISHED');
+
+-- CreateEnum
+CREATE TYPE "ProductCondition" AS ENUM ('NEW', 'USED', 'DAMAGED');
 
 -- CreateTable
 CREATE TABLE "User" (
@@ -7,6 +13,7 @@ CREATE TABLE "User" (
     "email" TEXT NOT NULL,
     "username" TEXT NOT NULL,
     "password" TEXT NOT NULL,
+    "role" "UserRole" NOT NULL DEFAULT 'WORKER',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -47,10 +54,10 @@ CREATE TABLE "Product" (
     "barcode" TEXT,
     "brandId" TEXT NOT NULL,
     "category" TEXT NOT NULL,
-    "size" TEXT NOT NULL,
-    "color" TEXT NOT NULL,
-    "style" TEXT NOT NULL,
-    "condition" TEXT NOT NULL,
+    "size" TEXT,
+    "color" TEXT,
+    "style" TEXT,
+    "condition" "ProductCondition" NOT NULL DEFAULT 'NEW',
     "quantity" INTEGER NOT NULL,
     "arrivalId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -75,9 +82,6 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Arrival_arrivalNumber_key" ON "Arrival"("arrivalNumber");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Product_sku_key" ON "Product"("sku");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Product_barcode_key" ON "Product"("barcode");
