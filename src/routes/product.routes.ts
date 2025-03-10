@@ -4,13 +4,13 @@ import { Router } from "express";
 import {
   createProduct,
   getAllProducts,
-  getlastSavedProduct,
+  getLastSavedProduct,
 } from "../controllers/product.controller";
 
 const router = Router();
 
 router.post("/", createProduct);
 router.get("/", getAllProducts);
-router.post("/get-last-saved-product", getlastSavedProduct);
+router.post("/get-last-saved-product", getLastSavedProduct);
 
 export default router;
