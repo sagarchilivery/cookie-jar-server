@@ -81,13 +81,20 @@ export const createArrival = async (req: Request, res: any) => {
       expected_pallets,
       expected_boxes,
       expected_kilograms,
-      expected_pieces,
     } = req.body;
 
-    if (!expectedArrivalDate || !supplier || !title) {
+    if (
+      !title ||
+      !supplier ||
+      !expectedArrivalDate ||
+      !expected_pallets ||
+      !expected_boxes ||
+      !expected_kilograms
+    ) {
       return res.status(400).json({
         success: false,
-        message: "Title, supplier and arrivalDate are required",
+        message:
+          "Title, supplier, arrivalDate, expected_pallets, expected_boxes & expected_kilograms are required",
       });
     }
 
@@ -100,7 +107,6 @@ export const createArrival = async (req: Request, res: any) => {
         expected_pallets,
         expected_boxes,
         expected_kilograms,
-        expected_pieces,
       },
     });
 
@@ -127,8 +133,14 @@ export const updateArrival = async (req: Request, res: any) => {
       expected_pallets,
       expected_boxes,
       expected_kilograms,
-      expected_pieces,
+      actual_pallets,
+      actual_boxes,
+      actual_kilograms,
+      status,
+      actualArrivalDate,
+      products,
     } = req.body;
+    console.log("req.body: ", req.body);
 
     if (!expectedArrivalDate || !supplier || !title) {
       return res.status(400).json({
@@ -137,12 +149,7 @@ export const updateArrival = async (req: Request, res: any) => {
       });
     }
 
-    if (
-      !expected_pallets &&
-      !expected_boxes &&
-      !expected_kilograms &&
-      !expected_pieces
-    ) {
+    if (!expected_pallets && !expected_boxes && !expected_kilograms) {
       return res.status(400).json({
         success: false,
         message:
@@ -174,7 +181,11 @@ export const updateArrival = async (req: Request, res: any) => {
         expected_pallets,
         expected_boxes,
         expected_kilograms,
-        expected_pieces,
+        actual_pallets,
+        actual_boxes,
+        actual_kilograms,
+        status,
+        actualArrivalDate,
       },
     });
 
@@ -184,6 +195,42 @@ export const updateArrival = async (req: Request, res: any) => {
     });
   } catch (error) {
     console.log("Error updating arrival", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+export const deleteArrival = async (req: Request, res: any) => {
+  try {
+    const { id } = req.params;
+
+    const arrivalExists = await prisma.arrival.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!arrivalExists) {
+      return res.status(404).json({
+        success: false,
+        message: "Arrival not found",
+      });
+    }
+
+    await prisma.arrival.delete({
+      where: {
+        id,
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Arrival deleted successfully",
+    });
+  } catch (error) {
+    console.log("Error deleting arrival", error);
     res.status(500).json({
       success: false,
       message: "Internal server error",

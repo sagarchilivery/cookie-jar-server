@@ -6,8 +6,11 @@ export const getAllBrands = async (
   res: Response
 ): Promise<any> => {
   try {
-    const brands = await prisma.brand.findMany();
-    return res.status(200).json({ success: true, data: brands });
+    const brands = await prisma.brand.findMany({
+      select: { name: true }
+    });
+    const brandNames = brands.map(brand => brand.name);
+    return res.status(200).json({ success: true, data: brandNames });
   } catch (error) {
     return res.status(500).json({ success: false, error: error });
   }

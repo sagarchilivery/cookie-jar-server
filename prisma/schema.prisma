@@ -42,16 +42,14 @@ model Arrival {
   summary             String?
 
   // Expected Quantities
-  expected_pallets   Int?
-  expected_boxes     Int?
-  expected_kilograms Float?
-  expected_pieces    Int?
+  expected_pallets   Int
+  expected_boxes     Int
+  expected_kilograms Float
 
   // Actual Quantities
   actual_pallets   Int?
   actual_boxes     Int?
   actual_kilograms Float?
-  actual_pieces    Int?
 
   products Product[]
 
@@ -65,29 +63,59 @@ enum ProductCondition {
   DAMAGED
 }
 
+enum ProductCategory {
+  ELECTRONICS
+  FASHION
+  GROCERY
+  FURNITURE
+  SPORTS
+  AUTOMOTIVE
+  HOME_APPLIANCES
+  TOYS
+  BOOKS
+  HEALTH
+  JEWELRY
+}
+
+enum ProductStyle {
+  CASUAL
+  FORMAL
+  SPORTY
+  TRADITIONAL
+  STREETWEAR
+  VINTAGE
+  MINIMALIST
+  LUXURY
+  INDUSTRIAL
+  MODERN
+  TECH
+  FUNCTIONAL
+}
+
 model Product {
-  id          String           @id @default(cuid())
+  id          String            @id @default(cuid())
   name        String
   sku         String
   description String?
-  barcode     String?          @unique
-  brand       Brand            @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  barcode     String?           @unique
+  brand       Brand             @relation(fields: [brandId], references: [id], onDelete: Cascade)
   brandId     String
-  category    String
+  category    ProductCategory?
   size        String?
   color       String?
-  style       String?
-  condition   ProductCondition @default(NEW)
-  quantity    Int
-  arrival     Arrival          @relation(fields: [arrivalId], references: [id], onDelete: Cascade)
+  style       ProductStyle?
+  condition   ProductCondition? @default(NEW)
+  quantity    Int?
+  added       Boolean           @default(false)
+  arrival     Arrival           @relation(fields: [arrivalId], references: [id], onDelete: Cascade)
   arrivalId   String
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
 }
 
 model Brand {
   id          String  @id @default(cuid())
-  name        String
+  name        String  @unique
   description String?
 
   createdAt DateTime  @default(now())

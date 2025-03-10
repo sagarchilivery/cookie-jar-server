@@ -7,6 +7,12 @@ CREATE TYPE "ArrivalStatus" AS ENUM ('UPCOMING', 'IN_PROGRESS', 'FINISHED');
 -- CreateEnum
 CREATE TYPE "ProductCondition" AS ENUM ('NEW', 'USED', 'DAMAGED');
 
+-- CreateEnum
+CREATE TYPE "ProductCategory" AS ENUM ('ELECTRONICS', 'FASHION', 'GROCERY', 'FURNITURE', 'SPORTS', 'AUTOMOTIVE', 'HOME_APPLIANCES', 'TOYS', 'BOOKS', 'HEALTH', 'JEWELRY');
+
+-- CreateEnum
+CREATE TYPE "ProductStyle" AS ENUM ('CASUAL', 'FORMAL', 'SPORTY', 'TRADITIONAL', 'STREETWEAR', 'VINTAGE', 'MINIMALIST', 'LUXURY', 'INDUSTRIAL', 'MODERN', 'TECH', 'FUNCTIONAL');
+
 -- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
@@ -31,14 +37,12 @@ CREATE TABLE "Arrival" (
     "finishDate" TIMESTAMP(3),
     "status" "ArrivalStatus" NOT NULL DEFAULT 'UPCOMING',
     "summary" TEXT,
-    "expected_pallets" INTEGER,
-    "expected_boxes" INTEGER,
-    "expected_kilograms" DOUBLE PRECISION,
-    "expected_pieces" INTEGER,
+    "expected_pallets" INTEGER NOT NULL,
+    "expected_boxes" INTEGER NOT NULL,
+    "expected_kilograms" DOUBLE PRECISION NOT NULL,
     "actual_pallets" INTEGER,
     "actual_boxes" INTEGER,
     "actual_kilograms" DOUBLE PRECISION,
-    "actual_pieces" INTEGER,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -53,10 +57,10 @@ CREATE TABLE "Product" (
     "description" TEXT,
     "barcode" TEXT,
     "brandId" TEXT NOT NULL,
-    "category" TEXT NOT NULL,
+    "category" "ProductCategory" NOT NULL,
     "size" TEXT,
     "color" TEXT,
-    "style" TEXT,
+    "style" "ProductStyle" NOT NULL,
     "condition" "ProductCondition" NOT NULL DEFAULT 'NEW',
     "quantity" INTEGER NOT NULL,
     "arrivalId" TEXT NOT NULL,
@@ -85,6 +89,9 @@ CREATE UNIQUE INDEX "Arrival_arrivalNumber_key" ON "Arrival"("arrivalNumber");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Product_barcode_key" ON "Product"("barcode");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Brand_name_key" ON "Brand"("name");
 
 -- AddForeignKey
 ALTER TABLE "Product" ADD CONSTRAINT "Product_brandId_fkey" FOREIGN KEY ("brandId") REFERENCES "Brand"("id") ON DELETE CASCADE ON UPDATE CASCADE;

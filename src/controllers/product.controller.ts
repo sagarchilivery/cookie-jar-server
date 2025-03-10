@@ -13,11 +13,11 @@ const generateNewSKU = () => {
 //   res: Response
 // ): Promise<any> => {
 //   try {
-//     let {
+//     const {
 //       barcode,
-//       name,
+//       brandName,
+//       productName,
 //       description,
-//       brandId,
 //       category,
 //       size,
 //       color,
@@ -25,17 +25,136 @@ const generateNewSKU = () => {
 //       condition,
 //       quantity,
 //       arrivalId,
+//       added,
 //     } = req.body;
 
-//     if (!name || !brandId || !condition || !quantity || !arrivalId) {
+//     if (!added) {
+//       if (!productName || !brandName || !arrivalId) {
+//         return res.status(400).json({
+//           success: false,
+//           message: "Required: Brand & product name, arrivalId",
+//         });
+//       }
+
+//       const doesBrandExist = await prisma.brand.findUnique({
+//         where: {
+//           name: brandName,
+//         },
+//       });
+
+//       if (!doesBrandExist) {
+//         return res.status(400).json({
+//           success: false,
+//           message: "Brand does not exist",
+//         });
+//       }
+
+//       const doesProductExist = await prisma.product.findFirst({
+//         where: {
+//           name: productName,
+//           brandId: doesBrandExist.id,
+//           arrivalId,
+//           added: false,
+//         },
+//       });
+
+//       if (doesProductExist) {
+//         if (
+//           color ||
+//           size ||
+//           description ||
+//           condition ||
+//           quantity ||
+//           style ||
+//           category ||
+//           barcode
+//         ) {
+//           const updatedProduct = await prisma.product.update({
+//             where: { id: doesProductExist.id },
+//             data: {
+//               color: color || doesProductExist.color,
+//               size: size || doesProductExist.size,
+//               description: description || doesProductExist.description,
+//               condition: condition || doesProductExist.condition,
+//               quantity: quantity || doesProductExist.quantity,
+//               style: style || doesProductExist.style,
+//               category: category || doesProductExist.category,
+//               barcode: barcode || doesProductExist.barcode,
+//               name: productName || doesProductExist.name,
+
+//             },
+//           });
+//           return res.status(200).json({
+//             success: true,
+//             message: "Product updated",
+//             data: updatedProduct,
+//           });
+//         }
+//         return res.status(200).json({
+//           success: true,
+//           message: "Saved successfully",
+//           data: doesProductExist,
+//         });
+//       } else {
+//         const newProductOnlySave = await prisma.product.create({
+//           data: {
+//             barcode,
+//             name: productName,
+//             description,
+//             brandId: doesBrandExist.id,
+//             category,
+//             size: size || null,
+//             color: color || null,
+//             style,
+//             condition,
+//             quantity,
+//             arrivalId,
+//             sku: generateNewSKU(),
+//             added: false,
+//           },
+//         });
+
+//         return res.status(201).json({
+//           success: true,
+//           message: "Product saved",
+//           data: newProductOnlySave,
+//         });
+//       }
+//     }
+
+//     if (
+//       !brandName ||
+//       !productName ||
+//       !condition ||
+//       !quantity ||
+//       !arrivalId ||
+//       !category ||
+//       !style
+//     ) {
 //       return res.status(400).json({
 //         success: false,
-//         message: "Required : name, brandId, condition, quantity, arrivalId",
+//         message:
+//           "Required: Brand & product name, condition, quantity, arrivalId, category, style",
+//       });
+//     }
+
+//     const doesArrivalExist = await prisma.arrival.findUnique({
+//       where: {
+//         id: arrivalId,
+//       },
+//     });
+
+//     if (!doesArrivalExist) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Arrival does not exist",
 //       });
 //     }
 
 //     const doesBrandExist = await prisma.brand.findUnique({
-//       where: { id: brandId },
+//       where: {
+//         name: brandName,
+//       },
 //     });
 
 //     if (!doesBrandExist) {
@@ -45,30 +164,32 @@ const generateNewSKU = () => {
 //       });
 //     }
 
-//     // Step 1: Search for an existing product with matching fields
+//     if (quantity < 1) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Quantity must be at least 1",
+//       });
+//     }
+
 //     const existingProduct = await prisma.product.findFirst({
 //       where: {
-//         brandId,
-//         name,
+//         name: productName,
+//         brandId: doesBrandExist.id,
 //         category,
 //         size: size || null,
 //         color: color || null,
-//         style: style || null,
+//         style,
 //         condition,
+//         added: true,
 //       },
 //     });
 
-//     if (!quantity || quantity < 1) {
-//       quantity = 1;
-//     }
-
 //     if (existingProduct) {
 //       if (existingProduct.arrivalId === arrivalId) {
-//         // ✅ Same `arrivalId` → Update quantity
 //         const updatedProduct = await prisma.product.update({
 //           where: { id: existingProduct.id },
 //           data: {
-//             quantity: existingProduct.quantity + quantity,
+//             quantity: { increment: quantity },
 //           },
 //         });
 
@@ -78,71 +199,74 @@ const generateNewSKU = () => {
 //           data: updatedProduct,
 //         });
 //       } else {
-//         // ❌ Different `arrivalId` → Reuse SKU, create a new product
 //         const newProduct = await prisma.product.create({
 //           data: {
 //             barcode,
-//             name,
+//             name: productName,
 //             description,
-//             brandId,
+//             brandId: doesBrandExist.id,
 //             category,
 //             size: size || null,
 //             color: color || null,
-//             style: style || null,
+//             style,
 //             condition,
 //             quantity,
 //             arrivalId,
-//             sku: existingProduct.sku, // Reusing the old SKU
+//             added: true,
+//             sku: generateNewSKU(),
 //           },
 //         });
 
 //         return res.status(201).json({
 //           success: true,
-//           message: "New product created with reused SKU",
+//           message: "New product created with new SKU",
 //           data: newProduct,
 //         });
 //       }
+//     } else {
+//       const newProduct = await prisma.product.create({
+//         data: {
+//           barcode,
+//           name: productName,
+//           description,
+//           brandId: doesBrandExist.id,
+//           category,
+//           size: size || null,
+//           color: color || null,
+//           style,
+//           condition,
+//           quantity,
+//           arrivalId,
+//           added: true,
+//           sku: generateNewSKU(),
+//         },
+//       });
+
+//       return res.status(201).json({
+//         success: true,
+//         message: "New product created with new SKU",
+//         data: newProduct,
+//       });
 //     }
-
-//     // Step 3: No matching product → Create new product with new SKU
-//     const newProduct = await prisma.product.create({
-//       data: {
-//         barcode,
-//         name,
-//         description,
-//         brandId,
-//         category,
-//         size: size || null,
-//         color: color || null,
-//         style: style || null,
-//         condition,
-//         quantity,
-//         arrivalId,
-//         sku: generateNewSKU(), // Generate a new SKU
-//       },
-//     });
-
-//     return res.status(201).json({
-//       success: true,
-//       message: "New product created with new SKU",
-//       data: newProduct,
-//     });
 //   } catch (error) {
-//     console.log("Error creating product", error);
-//     res.status(500).json({
+//     console.error("Error creating product:", error);
+//     return res.status(500).json({
 //       success: false,
 //       message: "Internal server error",
 //     });
 //   }
 // };
 
-export const createProduct = async (req: Request, res: Response) => {
+export const createProduct = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
   try {
-    let {
+    const {
       barcode,
-      name,
+      brandName,
+      productName,
       description,
-      brandId,
       category,
       size,
       color,
@@ -150,50 +274,157 @@ export const createProduct = async (req: Request, res: Response) => {
       condition,
       quantity,
       arrivalId,
+      added,
     } = req.body;
 
-    if (!name || !brandId || !condition || !quantity || !arrivalId) {
+    if (!added) {
+      // Auto-save: Ensure brandName, productName, and arrivalId exist
+      if (!productName || !brandName || !arrivalId) {
+        return res.status(400).json({
+          success: false,
+          message: "Required: Brand & product name, arrivalId",
+        });
+      }
+
+      // Check if brand exists
+      const brand = await prisma.brand.findUnique({
+        where: { name: brandName },
+      });
+
+      if (!brand) {
+        return res.status(400).json({
+          success: false,
+          message: "Brand does not exist",
+        });
+      }
+
+      // Find existing product for the same arrivalId
+      const existingProduct = await prisma.product.findFirst({
+        where: {
+          arrivalId,
+          added: false,
+        },
+      });
+
+      if (existingProduct) {
+        // Update only allowed fields (except arrivalId)
+        const updatedProduct = await prisma.product.update({
+          where: { id: existingProduct.id },
+          data: {
+            name: productName,
+            brandId: brand.id,
+            barcode: barcode || existingProduct.barcode,
+            description: description || existingProduct.description,
+            category: category || existingProduct.category,
+            size: size || existingProduct.size,
+            color: color || existingProduct.color,
+            style: style || existingProduct.style,
+            condition: condition || existingProduct.condition,
+            quantity: quantity || existingProduct.quantity,
+          },
+        });
+
+        return res.status(200).json({
+          success: true,
+          message: "Product updated",
+          data: updatedProduct,
+        });
+      } else {
+        // Create new auto-saved product
+        const newProduct = await prisma.product.create({
+          data: {
+            barcode,
+            name: productName,
+            description,
+            brandId: brand.id,
+            category,
+            size,
+            color,
+            style,
+            condition,
+            quantity,
+            arrivalId,
+            sku: generateNewSKU(),
+            added: false,
+          },
+        });
+
+        return res.status(201).json({
+          success: true,
+          message: "Product saved",
+          data: newProduct,
+        });
+      }
+    }
+
+    // If `added: true`, proceed with the regular product creation process
+    if (
+      !brandName ||
+      !productName ||
+      !condition ||
+      !quantity ||
+      !arrivalId ||
+      !category ||
+      !style
+    ) {
       return res.status(400).json({
         success: false,
-        message: "Required: name, brandId, condition, quantity, arrivalId",
+        message:
+          "Required: Brand & product name, condition, quantity, arrivalId, category, style",
       });
     }
 
-    const doesBrandExist = await prisma.brand.findUnique({
-      where: { id: brandId },
+    // Check if arrival exists
+    const arrival = await prisma.arrival.findUnique({
+      where: { id: arrivalId },
     });
 
-    if (!doesBrandExist) {
+    if (!arrival) {
+      return res.status(400).json({
+        success: false,
+        message: "Arrival does not exist",
+      });
+    }
+
+    // Check if brand exists
+    const brand = await prisma.brand.findUnique({
+      where: { name: brandName },
+    });
+
+    if (!brand) {
       return res.status(400).json({
         success: false,
         message: "Brand does not exist",
       });
     }
 
-    // Ensure quantity is at least 1
-    quantity = Math.max(quantity, 1);
+    if (quantity < 1) {
+      return res.status(400).json({
+        success: false,
+        message: "Quantity must be at least 1",
+      });
+    }
 
-    // Find an existing product with the same attributes
+    // Check if product exists with `added: true`
     const existingProduct = await prisma.product.findFirst({
       where: {
-        brandId,
-        name,
+        name: productName,
+        brandId: brand.id,
         category,
-        size: size || null,
-        color: color || null,
-        style: style || null,
+        size,
+        color,
+        style,
         condition,
+        added: true,
       },
     });
 
     if (existingProduct) {
       if (existingProduct.arrivalId === arrivalId) {
-        // ✅ If same arrivalId, update the quantity
+        // Update quantity for the same arrival
         const updatedProduct = await prisma.product.update({
           where: { id: existingProduct.id },
-          data: {
-            quantity: { increment: quantity }, // Efficiently increment quantity
-          },
+          data: { quantity: { increment: quantity } },
         });
 
         return res.status(200).json({
@@ -202,55 +433,57 @@ export const createProduct = async (req: Request, res: Response) => {
           data: updatedProduct,
         });
       } else {
-        // ❌ Different arrivalId, create a new product but reuse the existing SKU
+        // Create new product with a new SKU
         const newProduct = await prisma.product.create({
           data: {
             barcode,
-            name,
+            name: productName,
             description,
-            brandId,
+            brandId: brand.id,
             category,
-            size: size || null,
-            color: color || null,
-            style: style || null,
+            size,
+            color,
+            style,
             condition,
             quantity,
             arrivalId,
-            sku: existingProduct.sku, // Reuse SKU
+            added: true,
+            sku: generateNewSKU(),
           },
         });
 
         return res.status(201).json({
           success: true,
-          message: "New product created with reused SKU",
+          message: "New product created with new SKU",
           data: newProduct,
         });
       }
+    } else {
+      // Create new product
+      const newProduct = await prisma.product.create({
+        data: {
+          barcode,
+          name: productName,
+          description,
+          brandId: brand.id,
+          category,
+          size,
+          color,
+          style,
+          condition,
+          quantity,
+          arrivalId,
+          added: true,
+          sku: generateNewSKU(),
+        },
+      });
+
+      return res.status(201).json({
+        success: true,
+        message: "New product created with new SKU",
+        data: newProduct,
+      });
     }
-
-    // No matching product → Create new product with a new SKU
-    const newProduct = await prisma.product.create({
-      data: {
-        barcode,
-        name,
-        description,
-        brandId,
-        category,
-        size: size || null,
-        color: color || null,
-        style: style || null,
-        condition,
-        quantity,
-        arrivalId,
-        sku: generateNewSKU(), // Generate a new SKU
-      },
-    });
-
-    return res.status(201).json({
-      success: true,
-      message: "New product created with new SKU",
-      data: newProduct,
-    });
   } catch (error) {
     console.error("Error creating product:", error);
     return res.status(500).json({
@@ -268,6 +501,65 @@ export const getAllProducts = async (req: Request, res: Response) => {
       data: products,
     });
   } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+export const getLastSavedProduct = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  try {
+    const { arrivalId, productName, brandName } = req.body;
+
+    if (!arrivalId || !productName || !brandName) {
+      return res.status(400).json({
+        success: false,
+        message: "Required: Brand name, product name, and arrivalId",
+      });
+    }
+
+    // Find the brand first
+    const brand = await prisma.brand.findUnique({
+      where: { name: brandName },
+    });
+
+    if (!brand) {
+      return res.status(404).json({
+        success: false,
+        message: "Brand does not exist",
+      });
+    }
+
+    // Get the last saved (added: false) product
+    const product = await prisma.product.findFirst({
+      where: {
+        arrivalId,
+        name: productName,
+        brandId: brand.id, // Use brandId instead of querying brand.name
+        added: false,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "No saved product found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: product,
+    });
+  } catch (error) {
+    console.error("Error fetching last saved product:", error);
     res.status(500).json({
       success: false,
       message: "Internal server error",
