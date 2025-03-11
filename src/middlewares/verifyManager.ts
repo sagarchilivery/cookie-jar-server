@@ -18,7 +18,6 @@ const verifyManager = (
 
   if (token && secret) {
     const decode = jwt.verify(token, secret);
-    console.log('decode: ', decode);
     req.id = (decode as JwtPayload)._id;
     req.role = (decode as JwtPayload).role;
     req.email = (decode as JwtPayload).email;
