@@ -138,6 +138,7 @@ export const updateArrival = async (req: Request, res: any) => {
       actual_kilograms,
       status,
       actualArrivalDate,
+      finishDate,
       products,
     } = req.body;
     console.log("req.body: ", req.body);
