@@ -573,14 +573,12 @@ export const getProductsofArrival = async (
 ): Promise<any> => {
   try {
     const { id } = req.params;
-    console.log("id: ", id);
 
     const doesArrivalExist = await prisma.arrival.findUnique({
       where: {
         id,
       },
     });
-    console.log("doesArrivalExist: ", doesArrivalExist);
 
     if (!doesArrivalExist) {
       return res.status(400).json({
