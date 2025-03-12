@@ -141,7 +141,6 @@ export const updateArrival = async (req: Request, res: any) => {
       finishDate,
       products,
     } = req.body;
-    console.log("req.body: ", req.body);
 
     if (!expectedArrivalDate || !supplier || !title) {
       return res.status(400).json({
@@ -187,6 +186,7 @@ export const updateArrival = async (req: Request, res: any) => {
         actual_kilograms,
         status,
         actualArrivalDate,
+        finishDate,
       },
     });
 

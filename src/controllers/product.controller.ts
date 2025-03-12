@@ -370,7 +370,7 @@ export const createProduct = async (
       return res.status(400).json({
         success: false,
         message:
-          "Required: Brand & product name, condition, quantity, arrivalId, category, style",
+          "Required: Product & brand name, condition, quantity, category, style",
       });
     }
 
