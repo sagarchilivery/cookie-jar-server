@@ -5,6 +5,7 @@ import {
   createProduct,
   getAllProducts,
   getLastSavedProduct,
+  getProductsofArrival,
 } from "../controllers/product.controller";
 
 const router = Router();
@@ -12,5 +13,6 @@ const router = Router();
 router.post("/", createProduct);
 router.get("/", getAllProducts);
 router.post("/get-last-saved-product", getLastSavedProduct);
+router.get("/:id", getProductsofArrival)
 
 export default router;

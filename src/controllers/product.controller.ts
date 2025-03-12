@@ -566,3 +566,45 @@ export const getLastSavedProduct = async (
     });
   }
 };
+
+export const getProductsofArrival = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  try {
+    const { id } = req.params;
+    console.log("id: ", id);
+
+    const doesArrivalExist = await prisma.arrival.findUnique({
+      where: {
+        id,
+      },
+    });
+    console.log("doesArrivalExist: ", doesArrivalExist);
+
+    if (!doesArrivalExist) {
+      return res.status(400).json({
+        success: false,
+        message: "Arrival does not exist",
+      });
+    }
+
+    const products = await prisma.product.findMany({
+      where: {
+        arrivalId: id,
+      },include:{
+        brand:true
+      }
+    });
+    console.log("products: ", products);
+    res.status(200).json({
+      success: true,
+      data: products,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
