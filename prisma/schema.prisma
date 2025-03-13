@@ -45,11 +45,13 @@ model Arrival {
   expected_pallets   Int
   expected_boxes     Int
   expected_kilograms Float
+  expected_quantity  Int
 
   // Actual Quantities
   actual_pallets   Int?
   actual_boxes     Int?
   actual_kilograms Float?
+  actual_quantity  Int?
 
   products Product[]
 

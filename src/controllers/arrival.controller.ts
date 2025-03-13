@@ -28,10 +28,23 @@ export const getAllArrivals = async (req: Request, res: Response) => {
       },
     });
 
+    // Calculate total quantity for each arrival
+    const updatedArrivals = arrivals.map((arrival) => {
+      const totalQuantity = arrival.products.reduce((sum, product) => {
+        return sum + (product.quantity || 0);
+      }, 0);
+
+      return {
+        ...arrival,
+        actual_quantity: totalQuantity, // Assign the calculated total
+      };
+    });
+
     res.status(200).json({
       success: true,
-      data: arrivals,
+      data: updatedArrivals,
     });
+    
   } catch (error) {
     console.log("Error fetching arrivals", error);
     res.status(500).json({
@@ -83,6 +96,7 @@ export const createArrival = async (req: Request, res: any) => {
       expected_pallets,
       expected_boxes,
       expected_kilograms,
+      expected_quantity,
     } = req.body;
 
     if (
@@ -91,12 +105,13 @@ export const createArrival = async (req: Request, res: any) => {
       !expectedArrivalDate ||
       !expected_pallets ||
       !expected_boxes ||
-      !expected_kilograms
+      !expected_kilograms ||
+      !expected_quantity
     ) {
       return res.status(400).json({
         success: false,
         message:
-          "Title, supplier, arrivalDate, expected_pallets, expected_boxes & expected_kilograms are required",
+          "Title, supplier, arrivalDate, expected_pallets, expected_boxes, expected_kilograms & expected_quantity are required",
       });
     }
 
@@ -109,6 +124,7 @@ export const createArrival = async (req: Request, res: any) => {
         expected_pallets,
         expected_boxes,
         expected_kilograms,
+        expected_quantity,
       },
     });
 
@@ -138,6 +154,7 @@ export const updateArrival = async (req: Request, res: any) => {
       actual_pallets,
       actual_boxes,
       actual_kilograms,
+      expected_quantity,
       status,
       actualArrivalDate,
       finishDate,
@@ -151,11 +168,15 @@ export const updateArrival = async (req: Request, res: any) => {
       });
     }
 
-    if (!expected_pallets && !expected_boxes && !expected_kilograms) {
+    if (
+      !expected_pallets &&
+      !expected_boxes &&
+      !expected_kilograms &&
+      !expected_quantity
+    ) {
       return res.status(400).json({
         success: false,
-        message:
-          "At least one of the following is required: pallets, boxes, kilograms, pieces",
+        message: "All are required: pallets, boxes, kilograms & quantity",
       });
     }
 
@@ -182,6 +203,7 @@ export const updateArrival = async (req: Request, res: any) => {
         expectedArrivalDate,
         expected_pallets,
         expected_boxes,
+        expected_quantity,
         expected_kilograms,
         actual_pallets,
         actual_boxes,

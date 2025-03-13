@@ -40,9 +40,11 @@ CREATE TABLE "Arrival" (
     "expected_pallets" INTEGER NOT NULL,
     "expected_boxes" INTEGER NOT NULL,
     "expected_kilograms" DOUBLE PRECISION NOT NULL,
+    "expected_quantity" INTEGER NOT NULL,
     "actual_pallets" INTEGER,
     "actual_boxes" INTEGER,
     "actual_kilograms" DOUBLE PRECISION,
+    "actual_quantity" INTEGER,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
