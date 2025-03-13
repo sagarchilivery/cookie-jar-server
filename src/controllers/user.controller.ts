@@ -1,3 +1,5 @@
+// src/controllers/user.controller.ts
+
 import { Request, Response } from "express";
 import { prisma } from "../config/db";
 import { Cypher, Decypher } from "../utils/cypher-dicpher";

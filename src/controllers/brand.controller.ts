@@ -1,3 +1,5 @@
+// src/controllers/brand.controller.ts
+
 import { Request, Response } from "express";
 import { prisma } from "../config/db";
 

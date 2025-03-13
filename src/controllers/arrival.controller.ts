@@ -1,3 +1,5 @@
+// src/controllers/arrival.controller.ts
+
 import { Request, Response } from "express";
 import { getNextArrivalNumber, prisma } from "../config/db";
 
